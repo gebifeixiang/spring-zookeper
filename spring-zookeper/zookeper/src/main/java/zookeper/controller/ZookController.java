@@ -1,6 +1,8 @@
 package zookeper.controller;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.core.env.Environment;
 import org.apache.curator.framework.CuratorFramework;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,8 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import zookeper.service.DistributeZookLock;
 
 /**
  *
@@ -27,6 +31,8 @@ public class ZookController {
 	private Environment environment;
 	@Autowired
 	private CuratorFramework curatorFramework;
+	@Autowired
+	private DistributeZookLock  zookLock;
 
 	public String getZook() {
 		return "";
@@ -61,6 +67,7 @@ public class ZookController {
 		String name = environment.getProperty("url");
 		
 		try {
+			System.out.println(">>>>>>curatorFramework>>>>>>"+curatorFramework);
 			List <String> listChildren=curatorFramework.getChildren().forPath("/config/zook");
 			for(String child:listChildren ){
 				System.out.println("child>>>>>>>"+child);
@@ -75,4 +82,12 @@ public class ZookController {
 
 		return "Hello," + name;
 	}
+	
+	@RequestMapping("/lock")
+	public boolean zookLock(){
+		
+		return zookLock.tryLock(10L, TimeUnit.MINUTES);
+	}
+	
+	
 }
