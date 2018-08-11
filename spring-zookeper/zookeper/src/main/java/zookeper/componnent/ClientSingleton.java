@@ -3,6 +3,8 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 /**
 *
@@ -18,10 +20,17 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 *
 */
 
+//@Configuration
 public class ClientSingleton {
     private static CuratorFramework client = null;
+    
+    @Value("${zookeeper.connectString}")
+    private String connectString;
+    
+    
 
     private ClientSingleton() {
+    	System.out.println("zookeeper.connectString>>>>>>>>>>>>>>>>"+connectString);
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         client = CuratorFrameworkFactory.builder().connectString("127.0.0.1:2181").retryPolicy(retryPolicy)
                 .sessionTimeoutMs(1000 * 6).connectionTimeoutMs(1000 * 6).build();
